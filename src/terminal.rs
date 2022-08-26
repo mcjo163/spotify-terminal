@@ -2,8 +2,6 @@ mod relayer;
 
 use std::io::{self, stdout, Write};
 use eyre::Result;
-use termion::input::TermRead;
-use termion::event::Key;
 use termion::raw::{RawTerminal, IntoRawMode};
 use termion::color;
 
@@ -12,6 +10,15 @@ use relayer::Relayer;
 pub struct Size {
     pub width: u16,
     pub height: u16,
+}
+
+impl From<(u16, u16)> for Size {
+    fn from(tup: (u16, u16)) -> Self {
+        Self {
+            width: tup.0,
+            height: tup.1,
+        }
+    }
 }
 
 #[derive(Default)]
@@ -29,12 +36,8 @@ pub struct Terminal {
 impl Terminal {
 
     pub fn default() -> Result<Self> {
-        let size = termion::terminal_size()?;
         Ok(Self {
-            size: Size {
-                width: size.0,
-                height: size.1,
-            },
+            size: Size::from(termion::terminal_size()?),
             relayer: Relayer::default(),
             _stdout: stdout().into_raw_mode()?,
         })
